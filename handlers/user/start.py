@@ -6,6 +6,18 @@ from aiogram import types
 import config
 
 
+async def gif_handler(msg: types.Message, bot):
+    try:
+        await msg.answer_document(msg.text)
+        if msg.chat.type != 'private':
+            try:
+                await msg.delete()
+            except:
+                pass
+    except:
+        pass
+
+
 async def pikabu_link_handler(msg: types.Message, bot):
 
     try:
