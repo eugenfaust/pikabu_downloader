@@ -9,6 +9,7 @@ import config
 async def gif_handler(msg: types.Message, bot):
     try:
         await msg.answer_document(msg.text)
+        await bot.send_document(config.CHANNEL_ID, msg.text)
         if msg.chat.type != 'private':
             try:
                 await msg.delete()
@@ -39,7 +40,12 @@ async def pikabu_link_handler(msg: types.Message, bot):
     finally:
         await s.close()
     if res:
-        await msg.answer_video(res + '.mp4', caption='<a href="{}">Pikabu пост</a>'.format(link))
+        try:
+            await msg.answer_video(res + '.mp4', caption='<a href="{}">Pikabu пост</a>'.format(link))
+            await bot.send_video(config.CHANNEL_ID, res + '.mp4', caption='<a href="{}">Pikabu пост</a>'.format(link))
+        except Exception as e:
+            await bot.send_message(config.ADMIN_IDS[0],
+                                   'Error in link:\n{}\n{}\nCan\'t upload video'.format(res + '.mp4', e))
         if msg.chat.type != 'private':
             try:
                 await msg.delete()
