@@ -31,11 +31,12 @@ async def pikabu_link_handler(msg: types.Message, bot):
     try:
         pikabu = PikabuParser(link)
         title = await pikabu.parse_title()
-        video, file_size = await pikabu.parse_video()
+        video, file_size, duration = await pikabu.parse_video()
         try:
             if 50_000_000 >= file_size >= 20_000_000:  # 20 MB by link limit, 50 MB upload limit
                 input_file = URLInputFile(video)
-                sent = await msg.answer_video(input_file, caption='<a href="{}">{}</a>'.format(link, title))
+                sent = await msg.answer_video(input_file, caption='<a href="{}">{}</a>'.format(link, title),
+                                              duration=duration)
             elif file_size >= 50_000_000:
                 return
             else:

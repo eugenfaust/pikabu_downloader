@@ -38,9 +38,11 @@ class PikabuParser:
         if not self.bs:
             await self.load_content()
         try:
-            res = self.bs.find('div', {'class': 'player', 'data-type': 'video-file'})['data-source'] + '.mp4'
+            player = self.bs.find('div', {'class': 'player', 'data-type': 'video-file'})
+            res = player['data-source'] + '.mp4'
+            duration = int(player['data-duration'])
             async with aiohttp.ClientSession(headers=self._headers) as s:
                 resp = (await s.head(res)).headers['Content-Length']
-            return res, int(resp)
+            return res, int(resp), duration
         except Exception as e:
             raise Exception(f'Video parsing error: {traceback.format_exc()}\nWith link: {self.url}')
