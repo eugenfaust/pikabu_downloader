@@ -1,2 +1,4 @@
 aiogram~=3.0.0b5
 aiohttp~=3.8.3
+beautifulsoup4==4.11.1
+bs4==0.0.1
