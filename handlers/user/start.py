@@ -49,6 +49,7 @@ async def pikabu_link_handler(msg: types.Message, bot):
                     temp_group.append(InputMediaPhoto(media=img, caption=caption))
                     counter += 1
                     if counter >= 10:
+                        counter = 0
                         media_groups.append(temp_group)
                         temp_group = []
                 media_groups.append(temp_group)
