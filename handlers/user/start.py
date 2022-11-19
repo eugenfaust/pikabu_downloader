@@ -1,4 +1,5 @@
 import re
+import traceback
 
 import aiohttp
 from aiogram import types
@@ -39,21 +40,22 @@ async def pikabu_link_handler(msg: types.Message, bot):
                 await msg.delete()
             except:
                 pass
-        if len(images) > 1:
-            media_groups = []
-            temp_group = []
-            counter = 0
-            for img in images:
-                temp_group.append(InputMediaPhoto(media=img, caption=caption))
-                counter += 1
-                if counter >= 10:
-                    media_groups.append(temp_group)
-                    temp_group = []
-            media_groups.append(temp_group)
-            for media in media_groups:
-                await msg.answer_media_group(media)
-        else:
-            await msg.answer_photo(images[0], caption=caption)
+        if images:
+            if len(images) > 1:
+                media_groups = []
+                temp_group = []
+                counter = 0
+                for img in images:
+                    temp_group.append(InputMediaPhoto(media=img, caption=caption))
+                    counter += 1
+                    if counter >= 10:
+                        media_groups.append(temp_group)
+                        temp_group = []
+                media_groups.append(temp_group)
+                for media in media_groups:
+                    await msg.answer_media_group(media)
+            else:
+                await msg.answer_photo(images[0], caption=caption)
         if not video:
             return
         try:
@@ -72,5 +74,6 @@ async def pikabu_link_handler(msg: types.Message, bot):
             await bot.send_message(config.ADMIN_IDS[0],
                                    'Error in link:\n{}\n{}\nCan\'t upload video'.format(video, e))
     except Exception as e:
+        traceback.print_exception(e)
         print(e)
         await bot.send_message(config.ADMIN_IDS[0], e)
