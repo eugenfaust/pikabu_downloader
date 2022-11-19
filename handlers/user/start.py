@@ -2,7 +2,7 @@ import re
 
 import aiohttp
 from aiogram import types
-from aiogram.types import URLInputFile
+from aiogram.types import URLInputFile, InputMediaPhoto
 
 import config
 from parser.pikabu import PikabuParser
@@ -32,6 +32,29 @@ async def pikabu_link_handler(msg: types.Message, bot):
         pikabu = PikabuParser(link)
         title = await pikabu.parse_title()
         video, file_size, duration = await pikabu.parse_video()
+        images = await pikabu.parse_images()
+        if msg.chat.type != 'private':
+            try:
+                await msg.delete()
+            except:
+                pass
+        if len(images) > 1:
+            media_groups = []
+            temp_group = []
+            counter = 0
+            for img in images:
+                temp_group.append(InputMediaPhoto(media=img))
+                counter += 1
+                if counter >= 10:
+                    media_groups.append(temp_group)
+                    temp_group = []
+            media_groups.append(temp_group)
+            for media in media_groups:
+                await msg.answer_media_group(media)
+        else:
+            await msg.answer_photo(images[0])
+        if not video:
+            return
         try:
             if 50_000_000 >= file_size >= 20_000_000:  # 20 MB by link limit, 50 MB upload limit
                 input_file = URLInputFile(video)
@@ -47,11 +70,6 @@ async def pikabu_link_handler(msg: types.Message, bot):
         except Exception as e:
             await bot.send_message(config.ADMIN_IDS[0],
                                    'Error in link:\n{}\n{}\nCan\'t upload video'.format(video, e))
-        if msg.chat.type != 'private':
-            try:
-                await msg.delete()
-            except:
-                pass
     except Exception as e:
         print(e)
         await bot.send_message(config.ADMIN_IDS[0], e)

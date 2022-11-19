@@ -34,11 +34,30 @@ class PikabuParser:
         except Exception as e:
             raise Exception(f'Can\'t find title on link: {self.url}')
 
+    async def parse_images(self):
+        if not self.bs:
+            await self.load_content()
+        links = []
+        try:
+            story = self.bs.find('div', class_='page-story__story')
+            images = story.find_all('div', class_='story-image__content')
+            for img in images:
+                try:
+                    links.append(img.find('a', class_='image-link')['href'])
+                except Exception as e:
+                    continue
+        except Exception as e:
+            raise Exception(f'Can\'t find images on link: {self.url}')
+        return links
+
     async def parse_video(self):
         if not self.bs:
             await self.load_content()
         try:
-            player = self.bs.find('div', {'class': 'player', 'data-type': 'video-file'})
+            story = self.bs.find('div', class_='page-story__story')
+            player = story.find('div', {'class': 'player', 'data-type': 'video-file'})
+            if not player:
+                return None, None, None
             res = player['data-source'] + '.mp4'
             duration = int(player['data-duration'])
             async with aiohttp.ClientSession(headers=self._headers) as s:
