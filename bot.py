@@ -2,14 +2,16 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
 
-import config
+from config import load_config
 from handlers import errors
 from handlers import user
 
+cfg = load_config()
 session = AiohttpSession()
 bot_settings = {"session": session, "parse_mode": "HTML"}
-ai_bot = Bot(token=config.MAIN_BOT_TOKEN, **bot_settings)
-# storage = RedisStorage.from_url(REDIS_DSN, key_builder=DefaultKeyBuilder(with_bot_id=True))
+bot = Bot(token=cfg.token, **bot_settings)
+bot.__setattr__('admin_id', cfg.admin_id)
+bot.__setattr__('channel_id', cfg.channel_id)
 storage = MemoryStorage()
 
 main_dispatcher = Dispatcher(storage=storage)

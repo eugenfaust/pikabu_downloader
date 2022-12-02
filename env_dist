@@ -1,0 +1,8 @@
+# rename this file to .env (with the leading dot) and place it next to docker-compose.yml
+BOT_TOKEN=123456789:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
+DB_HOST=pgdb
+DB_NAME=pikabu
+DB_USER=dbuser
+DB_PASS=dbp@$$w0rd
+ADMIN_ID=123
+CHANNEL_ID=-123

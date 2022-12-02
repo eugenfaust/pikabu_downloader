@@ -1,19 +1,16 @@
 import re
-import traceback
 
-import aiohttp
-from aiogram import types
+from aiogram import types, Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import URLInputFile, InputMediaPhoto
 
-import config
 from parser.pikabu import PikabuParser
 
 
-async def gif_handler(msg: types.Message, bot):
+async def gif_handler(msg: types.Message, bot: Bot):
     try:
         await msg.answer_document(msg.text)
-        await bot.send_document(config.CHANNEL_ID, msg.text)
+        await bot.send_document(bot.__getattribute__('channel_id'), msg.text)
         if msg.chat.type != 'private':
             try:
                 await msg.delete()
@@ -23,12 +20,14 @@ async def gif_handler(msg: types.Message, bot):
         pass
 
 
-async def pikabu_link_handler(msg: types.Message, bot):
+async def pikabu_link_handler(msg: types.Message, bot: Bot):
+    admin_id = bot.__getattribute__('admin_id')
+    channel_id = bot.__getattribute__('channel_id')
     try:
         # Formatted string used for regex with whitespace. Without this regex can be failed if link in end of string
         link = re.search('https:\/\/pikabu.ru(.*) ', f'{msg.text} ').group().strip()
     except Exception as e:
-        await bot.send_message(config.ADMIN_IDS[0], 'Error in link:\n{}\n{}'.format(msg.text, e))
+        await bot.send_message(admin_id, 'Error in link:\n{}\n{}'.format(msg.text, e))
         return
     try:
         pikabu = PikabuParser(link)
@@ -66,7 +65,7 @@ async def pikabu_link_handler(msg: types.Message, bot):
                 sent = await msg.answer_video(input_file, caption=caption,
                                               duration=duration)
             elif file_size >= 50_000_000:
-                await bot.send_message(config.ADMIN_IDS[0], 'Video size limit: {}'.format(link))
+                await bot.send_message(admin_id, 'Video size limit: {}'.format(link))
                 return
             else:
                 try:
@@ -74,12 +73,10 @@ async def pikabu_link_handler(msg: types.Message, bot):
                                                   caption=caption)
                 except TelegramBadRequest as e:  # Some videos with bad width/height can't be uploaded
                     sent = await msg.answer_video(URLInputFile(video), caption=caption)
-            await bot.send_video(config.CHANNEL_ID, sent.video.file_id,
+            await bot.send_video(channel_id, sent.video.file_id,
                                  caption=caption)
         except Exception as e:
-            await bot.send_message(config.ADMIN_IDS[0],
+            await bot.send_message(admin_id,
                                    'Error in link:\n{}\n{}\nCan\'t upload video'.format(video, e))
     except Exception as e:
-        traceback.print_exception(e)
-        print(e)
-        await bot.send_message(config.ADMIN_IDS[0], e)
+        await bot.send_message(admin_id, 'Pikabu handler error: {}'.format(e))
