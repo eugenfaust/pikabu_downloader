@@ -73,8 +73,11 @@ async def pikabu_link_handler(msg: types.Message, bot: Bot):
                                                   caption=caption)
                 except TelegramBadRequest as e:  # Some videos with bad width/height can't be uploaded
                     sent = await msg.answer_video(URLInputFile(video), caption=caption)
-            await bot.send_video(channel_id, sent.video.file_id,
-                                 caption=caption)
+            if sent.video:
+                await bot.send_video(channel_id, sent.video.file_id,
+                                     caption=caption)
+            else:
+                await bot.send_document(channel_id, sent.document.file_id, caption=caption)
         except Exception as e:
             capture_exception(e)
             await bot.send_message(admin_id,
