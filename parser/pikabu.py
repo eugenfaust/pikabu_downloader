@@ -21,10 +21,26 @@ class PikabuParser:
             raise Exception(f'Request error: {e}\nWith link: {self.url}')
         if response and response.status == 200:
             self.bs = BeautifulSoup(await response.text(), 'html.parser')
-
         await s.close()
         if not self.bs:
             raise Exception(f'Bad response: {response.status}')
+
+    async def parse_content(self):
+        if not self.bs:
+            await self.load_content()
+        story = self.bs.find('div', class_='story__content-inner')
+        blocks = story.find_all('div', class_='story-block')
+        for b in blocks:
+            classes = b.get('class')
+            if 'story-block_type_text' in classes:
+                print(b.find('p').text)
+            elif 'story-block_type_image' in classes:
+                print(b.find('a')['href'])
+            elif 'story-block_type_video' in classes:
+                print(b.find('div', {'class': 'player', 'data-type': 'video-file'})['data-source'])
+            else:
+                print(b)
+
 
     async def parse_title(self):
         if not self.bs:
