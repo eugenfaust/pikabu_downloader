@@ -1,5 +1,6 @@
 import re
 
+from sentry_sdk import capture_exception
 from aiogram import types, Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import URLInputFile, InputMediaPhoto
@@ -27,7 +28,6 @@ async def pikabu_link_handler(msg: types.Message, bot: Bot):
         # Formatted string used for regex with whitespace. Without this regex can be failed if link in end of string
         link = re.search('https:\/\/pikabu.ru(.*) ', f'{msg.text} ').group().strip()
     except Exception as e:
-        await bot.send_message(admin_id, 'Error in link:\n{}\n{}'.format(msg.text, e))
         return
     try:
         pikabu = PikabuParser(link)
@@ -76,7 +76,9 @@ async def pikabu_link_handler(msg: types.Message, bot: Bot):
             await bot.send_video(channel_id, sent.video.file_id,
                                  caption=caption)
         except Exception as e:
+            capture_exception(e)
             await bot.send_message(admin_id,
                                    'Error in link:\n{}\n{}\nCan\'t upload video'.format(video, e))
     except Exception as e:
+        capture_exception(e)
         await bot.send_message(admin_id, 'Pikabu handler error: {}'.format(e))

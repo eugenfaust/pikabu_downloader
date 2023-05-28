@@ -1,6 +1,5 @@
 from bot import main_dispatcher, bot, cfg
 import sentry_sdk
-from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 
 if __name__ == "__main__":
     sentry_sdk.init(
