@@ -20,6 +20,7 @@ class Config:
     token: str
     admin_id: int
     channel_id: int
+    sentry_dsn: str
 
 
 def load_config():
@@ -31,5 +32,6 @@ def load_config():
               port=getenv('DB_PORT', 5432)),
         token=getenv('BOT_TOKEN'),
         admin_id=getenv('ADMIN_ID', 0),
-        channel_id=getenv('CHANNEL_ID', 0)
+        channel_id=getenv('CHANNEL_ID', 0),
+        sentry_dsn=getenv('SENTRY_DSN'),
     )

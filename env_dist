@@ -6,3 +6,4 @@ DB_USER=dbuser
 DB_PASS=dbp@$$w0rd
 ADMIN_ID=123
 CHANNEL_ID=-123
+SENTRY_DSN=https://secret@url.com/your_id

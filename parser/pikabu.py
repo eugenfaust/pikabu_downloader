@@ -1,4 +1,3 @@
-import re
 import traceback
 
 import aiohttp
@@ -40,7 +39,6 @@ class PikabuParser:
                 print(b.find('div', {'class': 'player', 'data-type': 'video-file'})['data-source'])
             else:
                 print(b)
-
 
     async def parse_title(self):
         if not self.bs:
