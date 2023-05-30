@@ -1,9 +1,11 @@
 # rename this file to .env (with the leading dot) and place it next to docker-compose.yml
 BOT_TOKEN=123456789:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
-DB_HOST=pgdb
-DB_NAME=pikabu
-DB_USER=dbuser
-DB_PASS=dbp@$$w0rd
+POSTGRES_DB=cooldb
+POSTGRES_USER=cooluser
+POSTGRES_PASSWORD=coolpass
+POSTGRES_DB_NAME=coolname
+RABBITMQ_DEFAULT_USER=cooluser
+RABBITMQ_DEFAULT_PASS=coolpass
 ADMIN_ID=123
 CHANNEL_ID=-123
 SENTRY_DSN=https://secret@url.com/your_id

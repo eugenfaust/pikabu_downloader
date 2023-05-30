@@ -1,3 +1,4 @@
+import logging
 import traceback
 from typing import Any
 
@@ -22,5 +23,6 @@ class MyHandler(ErrorHandler):
                                         f"<code>{self.data['event_from_user'].id}</code>\n{response}")
 
         except Exception as e:
+            logging.exception(e)
             # Add here logging to file/logging system
             pass

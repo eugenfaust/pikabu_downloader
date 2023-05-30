@@ -15,8 +15,16 @@ class DB:
 
 
 @dataclass
+class Rabbit:
+    user: str
+    password: str
+    host: str
+
+
+@dataclass
 class Config:
     db: DB
+    rabbit: Rabbit
     token: str
     admin_id: int
     channel_id: int
@@ -30,6 +38,9 @@ def load_config():
               user=getenv('DB_USER'),
               password=getenv('DB_PASS'),
               port=getenv('DB_PORT', 5432)),
+        rabbit=Rabbit(user=getenv('RABBITMQ_DEFAULT_USER'),
+                      password=getenv('RABBITMQ_DEFAULT_PASS'),
+                      host=getenv('RABBITMQ_DEFAULT_HOST')),
         token=getenv('BOT_TOKEN'),
         admin_id=getenv('ADMIN_ID', 0),
         channel_id=getenv('CHANNEL_ID', 0),

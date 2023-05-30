@@ -1,0 +1,38 @@
+version: "3"
+services:
+  tgbot:
+    build: ./bot # build from sources in this folder
+    container_name: pikabu_bot
+    depends_on: # depends on other service
+      - rabbit
+    env_file:
+      - .env
+  parser:
+    build: ./downloader # build from sources in this folder
+    container_name: pikabu_parser
+    depends_on: # depends on other service
+      - rabbit
+    env_file:
+      - .env
+  rabbit:
+    image: rabbitmq
+    container_name: pikabu_rabbit
+    hostname: rabbitmq_host
+    ports:
+      - "5672:5672"
+    restart: always
+    env_file:
+      - .env
+
+#  pgdb:
+#    image: postgres # name of image from dockerhub
+#    env_file:
+#      - .env
+#    container_name: pikabu_db
+#    volumes:
+#      - pgdata:/var/lib/postgresql/data/
+
+volumes:
+  pgdata: null
+
+

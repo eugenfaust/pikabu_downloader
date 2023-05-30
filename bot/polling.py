@@ -9,4 +9,5 @@ if __name__ == "__main__":
         # We recommend adjusting this value in production,
         traces_sample_rate=1.0,
     )
+    print('run')
     main_dispatcher.run_polling(bot)
