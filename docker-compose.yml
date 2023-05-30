@@ -7,6 +7,7 @@ services:
       - rabbit
     env_file:
       - .env
+    restart: always
   parser:
     build: ./downloader # build from sources in this folder
     container_name: pikabu_parser
@@ -14,6 +15,7 @@ services:
       - rabbit
     env_file:
       - .env
+    restart: always
   rabbit:
     image: rabbitmq
     container_name: pikabu_rabbit
@@ -23,7 +25,6 @@ services:
     restart: always
     env_file:
       - .env
-
 #  pgdb:
 #    image: postgres # name of image from dockerhub
 #    env_file:
@@ -31,7 +32,6 @@ services:
 #    container_name: pikabu_db
 #    volumes:
 #      - pgdata:/var/lib/postgresql/data/
-
 volumes:
   pgdata: null
 

@@ -1,4 +1,3 @@
-from aiogram.types.chat_action import ChatAction
 from aiogram import Router, F
 from aiogram.filters import Command
 from .help import bot_help

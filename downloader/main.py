@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import InputMediaPhoto, URLInputFile
+from aiormq import AMQPConnectionError
 from sentry_sdk import capture_exception
 import sentry_sdk
 from aio_pika import connect
@@ -85,7 +86,13 @@ async def main() -> None:
         dsn=cfg.sentry_dsn,
         traces_sample_rate=1.0,
     )
-    connection = await connect(f"amqp://{cfg.rabbit.user}:{cfg.rabbit.password}@{cfg.rabbit.host}/")
+    while True:
+        try:
+            connection = await connect(f"amqp://{cfg.rabbit.user}:{cfg.rabbit.password}@{cfg.rabbit.host}/")
+            break
+        except AMQPConnectionError:
+            print("Trying connect to rabbit...")
+            await asyncio.sleep(1)
     async with connection:
         channel = await connection.channel()
         queue = await channel.declare_queue("link_parser")
