@@ -15,6 +15,7 @@ from parser.pikabu import PikabuParser
 
 cfg = load_config()
 bot = Bot(cfg.token, parse_mode='HTML')
+Bot.set_current(bot)
 
 
 async def on_message(message: AbstractIncomingMessage) -> None:
@@ -38,7 +39,7 @@ async def on_message(message: AbstractIncomingMessage) -> None:
                 temp_group = []
                 counter = 0
                 for img in images:
-                    temp_group.append(InputMediaPhoto(media=img, caption=caption))
+                    temp_group.append(InputMediaPhoto(media=URLInputFile(img), caption=caption))
                     counter += 1
                     if counter >= 10:
                         counter = 0
@@ -48,7 +49,7 @@ async def on_message(message: AbstractIncomingMessage) -> None:
                 for media in media_groups:
                     await bot.send_media_group(request.chat_id, media)
             else:
-                await bot.send_photo(request.chat_id, images[0], caption=caption)
+                await bot.send_photo(request.chat_id, URLInputFile(images[0]), caption=caption)
         if not video:
             return
         try:
