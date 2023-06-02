@@ -2,6 +2,7 @@ import traceback
 
 import aiohttp
 from bs4 import BeautifulSoup
+from sentry_sdk import capture_exception
 
 
 class PikabuParser:
@@ -14,15 +15,16 @@ class PikabuParser:
 
     async def load_content(self):
         s = aiohttp.ClientSession(headers=self._headers)
-        try:
-            response = await s.get(self.url)
-        except Exception as e:
-            raise Exception(f'Request error: {e}\nWith link: {self.url}')
-        if response and response.status == 200:
-            self.bs = BeautifulSoup(await response.text(), 'html.parser')
-        await s.close()
-        if not self.bs:
-            raise Exception(f'Bad response: {response.status}')
+        async with s:
+            try:
+                response = await s.get(self.url)
+            except Exception as e:
+                capture_exception(e)
+                raise Exception(f'Request error: {e}\nWith link: {self.url}')
+            if response and response.status == 200:
+                self.bs = BeautifulSoup(await response.text(), 'html.parser')
+                return True
+            return False
 
     async def parse_content(self):
         if not self.bs:

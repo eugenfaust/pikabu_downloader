@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 from types import SimpleNamespace
 
 from aiogram.exceptions import TelegramBadRequest
@@ -9,6 +10,7 @@ from sentry_sdk import capture_exception
 import sentry_sdk
 from aio_pika import connect
 from aio_pika.abc import AbstractIncomingMessage
+
 from config import load_config
 from aiogram import Bot
 from parser.pikabu import PikabuParser
@@ -19,11 +21,14 @@ Bot.set_current(bot)
 
 
 async def on_message(message: AbstractIncomingMessage) -> None:
-    print(" [x] Received message %r" % message)
-    # uid, msg_id, link
+    logging.info(" [x] Received message %r" % message)
     request = json.loads(message.body, object_hook=lambda d: SimpleNamespace(**d))
     try:
         pikabu = PikabuParser(request.link)
+        if not await pikabu.load_content():
+            capture_exception
+            await bot.edit_message_text("❌ Бот временно не работает. Работаем над этой проблемой", request.chat_id,
+                                        request.msg_id)
         title = await pikabu.parse_title()
         video, file_size, duration = await pikabu.parse_video()
         images = await pikabu.parse_images()
@@ -92,13 +97,14 @@ async def main() -> None:
             connection = await connect(f"amqp://{cfg.rabbit.user}:{cfg.rabbit.password}@{cfg.rabbit.host}/")
             break
         except AMQPConnectionError:
-            print("Trying connect to rabbit...")
+            logging.info("Trying connect to rabbit...")
             await asyncio.sleep(1)
     async with connection:
         channel = await connection.channel()
+        await channel.set_qos(prefetch_count=10)
         queue = await channel.declare_queue("link_parser")
         await queue.consume(on_message, no_ack=False)
-        print(" [*] Waiting for messages. To exit press CTRL+C")
+        logging.info(" [*] Waiting for messages. To exit press CTRL+C")
         await asyncio.Future()
 
 
