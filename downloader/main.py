@@ -26,9 +26,10 @@ async def on_message(message: AbstractIncomingMessage) -> None:
     try:
         pikabu = PikabuParser(request.link)
         if not await pikabu.load_content():
-            capture_exception
+            await message.ack()
             await bot.edit_message_text("❌ Бот временно не работает. Работаем над этой проблемой", request.chat_id,
                                         request.msg_id)
+            return
         title = await pikabu.parse_title()
         video, file_size, duration = await pikabu.parse_video()
         images = await pikabu.parse_images()
@@ -56,6 +57,7 @@ async def on_message(message: AbstractIncomingMessage) -> None:
             else:
                 await bot.send_photo(request.chat_id, URLInputFile(images[0]), caption=caption)
         if not video:
+            await message.ack()
             return
         try:
             if 50_000_000 >= file_size >= 20_000_000:  # 20 MB by link limit, 50 MB upload limit
@@ -64,6 +66,7 @@ async def on_message(message: AbstractIncomingMessage) -> None:
                                             duration=duration)
             elif file_size >= 50_000_000:
                 await bot.send_message(cfg.admin_id, 'Video size limit: {}'.format(request.link))
+                await message.ack()
                 return
             else:
                 try:
